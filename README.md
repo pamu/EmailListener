@@ -1,0 +1,2 @@
+# EmailListener
+Scala email listener 
