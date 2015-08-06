@@ -6,6 +6,8 @@ import javax.mail.{Folder, Session, Message}
 
 
 import com.sun.mail.imap.IMAPFolder
+import com.sun.mail.imap.IMAPFolder.ProtocolCommand
+import com.sun.mail.imap.protocol.IMAPProtocol
 
 import scala.util.{Failure, Success, Try}
 
@@ -20,6 +22,7 @@ object Main {
       case Failure(th) => th.printStackTrace()
     }*/
     notifyOnNewEmail("imap", "imap.gmail.com", "993", "*****", "*****")
+
     Thread.sleep(Long.MaxValue)
   }
 
@@ -61,7 +64,14 @@ object Main {
           e.getMessages.foreach(msg => println(msg.getSubject))
         }
       })
-      inbox.asInstanceOf[IMAPFolder].idle()
+      val imapFolder = inbox.asInstanceOf[IMAPFolder]
+      imapFolder.idle()
+      imapFolder.doCommand(new ProtocolCommand {
+        override def doCommand(imapProtocol: IMAPProtocol): AnyRef = {
+          imapProtocol.simpleCommand("NOOP", null);
+          return null;
+        }
+      })
     }
   }
 }
