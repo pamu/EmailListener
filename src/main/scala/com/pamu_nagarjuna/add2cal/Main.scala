@@ -5,11 +5,15 @@ import javax.mail.event.{MessageCountEvent, MessageCountAdapter}
 import javax.mail.{Folder, Session, Message}
 
 
+import akka.actor.{Props, ActorSystem}
 import com.sun.mail.imap.IMAPFolder
 import com.sun.mail.imap.IMAPFolder.ProtocolCommand
 import com.sun.mail.imap.protocol.IMAPProtocol
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by pnagarjuna on 05/08/15.
@@ -21,8 +25,10 @@ object Main {
       case Success(emails) => emails.foreach(email => println(s"${email.getSubject}"))
       case Failure(th) => th.printStackTrace()
     }*/
-    notifyOnNewEmail("imap", "imap.gmail.com", "993", "*****", "*****")
-
+    //notifyOnNewEmail("imap", "imap.gmail.com", "993", "*****", "*****")
+    val system = ActorSystem("MainSnifferSystem")
+    val demo = system.actorOf(Props[Demo], "Demo")
+    demo ! Demo.Start
     Thread.sleep(Long.MaxValue)
   }
 
@@ -35,6 +41,22 @@ object Main {
     properties put(String.format("mail.%s.socketFactory.port", protocol), String.valueOf(port))
     properties
   }
+
+  def getIMAPFolder(protocol: String, host: String, port: String, username: String, password: String, box: String): Future[IMAPFolder] = {
+    Future {
+      scala.concurrent.blocking {
+        val properties = getServerProps(protocol, host, port)
+        val session = Session.getDefaultInstance(properties)
+        val store = session.getStore(protocol)
+        store.connect(username, password)
+        val inbox = store.getFolder("INBOX")
+        inbox.open(Folder.READ_WRITE)
+        inbox.asInstanceOf[IMAPFolder]
+      }
+    }
+  }
+
+
 
   def getNewEmails(protocol: String, host: String, port: String, username: String, password: String): Try[List[Message]] = {
     Try {
