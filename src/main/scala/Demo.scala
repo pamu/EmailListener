@@ -1,9 +1,7 @@
-package com.pamu_nagarjuna.add2cal
-
-import akka.actor.{Status, Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Status}
+import akka.pattern.pipe
 
 import scala.concurrent.Future
-import akka.pattern.pipe
 
 /**
  * Created by pnagarjuna on 06/08/15.

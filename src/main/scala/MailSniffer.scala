@@ -1,11 +1,9 @@
-package com.pamu_nagarjuna.add2cal
-
 import javax.mail.Message
-import javax.mail.event.{MessageCountEvent, MessageCountAdapter}
+import javax.mail.event.{MessageCountAdapter, MessageCountEvent}
 
-import akka.actor.{Status, ActorLogging, Actor}
+import akka.actor.{Actor, ActorLogging, Status}
 import akka.pattern.pipe
-import com.pamu_nagarjuna.add2cal.Main.{NoFolder, FolderNotOpen, NOOP}
+import Main.{FolderNotOpen, NOOP, NoFolder}
 import com.sun.mail.imap.IMAPFolder
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,7 +57,7 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       self ! Idle
     case Msgs(msgs) =>
       println("Messages")
-      msgs.foreach(msg => println(msg.getSubject))
+      msgs.foreach(msg => println(s"${msg.getSubject} from ${msg.getFrom}"))
     case Idle =>
       log.info("Got Idle Message")
       Main.keepAlive(folder) pipeTo self

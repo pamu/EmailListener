@@ -4,7 +4,7 @@ version := "1.0.0"
 
 scalaVersion := "2.11.6"
 
-mainClass := Some("com.pamu_nagarjuna.add2cal.Main")
+mainClass := Some("Main")
 
 resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 

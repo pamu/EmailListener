@@ -1,26 +1,27 @@
-package com.pamu_nagarjuna.add2cal
-
 import java.util.Properties
-import javax.mail.event.{MessageCountEvent, MessageCountAdapter}
-import javax.mail.{Folder, Session, Message}
+import javax.mail.event.{MessageCountAdapter, MessageCountEvent}
+import javax.mail.{Folder, Message, Session}
 
-
-import akka.actor.{Props, ActorSystem}
-import com.pamu_nagarjuna.add2cal.MailSniffer.{PushMails, Connection}
+import MailSniffer.Connection
+import akka.actor.{ActorSystem, Props}
 import com.sun.mail.imap.IMAPFolder
 import com.sun.mail.imap.IMAPFolder.ProtocolCommand
 import com.sun.mail.imap.protocol.IMAPProtocol
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
-
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.Try
 
 /**
  * Created by pnagarjuna on 05/08/15.
  */
 object Main {
   def main(args: Array[String]): Unit = {
+    println("""usage: sbt "run <email> <password>" """)
+    if (args.length != 2) {
+      println("no ")
+      System exit(0)
+    }
     /*
     getNewEmails("imap", "imap.gmail.com", "993", "******", "*****") match {
       case Success(emails) => emails.foreach(email => println(s"${email.getSubject}"))
@@ -30,7 +31,8 @@ object Main {
     val system = ActorSystem("MainSnifferSystem")
     //val demo = system.actorOf(Props[Demo], "Demo")
     //demo ! Demo.Start
-    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", "---------", "--------")), "MailSniffer")
+
+    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", args(0), args(1))), "MailSniffer")
     sniffer ! Connection
     Thread.sleep(Long.MaxValue)
   }
