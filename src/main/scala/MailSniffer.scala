@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Created by pnagarjuna on 06/08/15.
  */
 object MailSniffer {
-  case object Connection
+  case object Connect
   case object ImapFolder
   case object Idle
   case object IdleOff
@@ -24,18 +24,23 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
   import MailSniffer._
 
   def receive = {
-    case Connection =>
+    case Connect =>
+      log.info("Got a Connection message")
+      log.info("Going to Connection state")
       context become connection(protocol, host, port, username, password)
+      log.info("Sent ImapFolder message after switching state to Connection")
       self ! ImapFolder
-    case x => log.info("{}", x, x getClass)
+    case x => log.info("unknown message {} of type {}", x, x getClass)
   }
 
   def connection(protocol: String, host: String, port: String, username: String, password: String): Receive = {
     case ImapFolder =>
       log info "Got a ImapFolder request"
+      log info "trying to connect to imap service"
       Main.getIMAPFolder(protocol, host, port, username, password, "inbox") pipeTo self
     case folder: IMAPFolder =>
       log.info("Got Inbox")
+      log info ""
       context become idle(folder)
       self ! PushMails
     case Status.Failure(throwable) =>
