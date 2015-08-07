@@ -1,4 +1,5 @@
-import javax.mail.{Address, Message}
+import java.io.IOException
+import javax.mail.{MessagingException, Address, Message}
 import javax.mail.event.{MessageCountAdapter, MessageCountEvent}
 
 import akka.actor.{Actor, ActorLogging, Status}
@@ -67,18 +68,30 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       log.info("Got Idle Message")
       Main.keepAlive(folder) pipeTo self
     case unit: Unit =>
+      log info "Idle exited taking to idle state again"
       Main.keepAlive(folder) pipeTo self
     case Status.Failure(throwable) =>
       throwable match {
         case NoFolder(_) =>
           context become connection(protocol, host, port, username, password)
+          self ! Connect
         case FolderNotOpen(_) =>
           context become connection(protocol, host, port, username, password)
-        case x => log.info("failure {} cause {}", x.getMessage, x.getCause)
+          self ! Connect
+        case ex: IOException =>
+          context become connection(protocol, host, port, username, password)
+          self ! Connect
+        case msgEx: MessagingException =>
+          context become connection(protocol, host, port, username, password)
+          self ! Connect
+        case x =>
+          log.info("failure in idle state {} cause {}", x.getMessage, x.getCause)
       }
     case IdleOff =>
+      log info "Idle off message is initiated"
       Main.idleOff(folder) pipeTo self
     case NOOP =>
+      log info "Got NOOP message killing self"
       context stop self
     case x =>
       log.info("Unknown message in Connection state {} of type {}", x, x.getClass)
