@@ -17,11 +17,16 @@ import scala.util.Try
  */
 object Main {
   def main(args: Array[String]): Unit = {
-    println("""usage: sbt "run <email> <password>" """)
-    if (args.length != 2) {
-      println("no ")
-      System exit(0)
-    }
+    println("""usage: sbt run""")
+
+    println("Enter your gmail email id")
+
+    val email = System.console().readLine()
+
+    println(s"Enter password for $email")
+
+    val pass = System.console.readPassword()
+
     /*
     getNewEmails("imap", "imap.gmail.com", "993", "******", "*****") match {
       case Success(emails) => emails.foreach(email => println(s"${email.getSubject}"))
@@ -32,7 +37,7 @@ object Main {
     //val demo = system.actorOf(Props[Demo], "Demo")
     //demo ! Demo.Start
 
-    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", args(0), args(1))), "MailSniffer")
+    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", email, pass.toString)), "MailSniffer")
     sniffer ! Connection
     Thread.sleep(Long.MaxValue)
   }

@@ -9,11 +9,5 @@ in the root folder of the project
 run
 
 ```
-    sbt " run <your gmail email id>  <your gmail password> "
-```
-
-example
-
-```
-    sbt " run something@gmail.com secret_pass "
+    sbt run
 ```
