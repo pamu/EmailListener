@@ -27,7 +27,6 @@ object Main {
 
     val pass = System.console.readPassword()
 
-    println(s"$pass")
 
     /*
     getNewEmails("imap", "imap.gmail.com", "993", "******", "*****") match {
