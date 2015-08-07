@@ -19,11 +19,11 @@ object Main {
   def main(args: Array[String]): Unit = {
     println("""usage: sbt run""")
 
-    println("Enter your gmail email id")
+    print("Enter your gmail email id: ")
 
     val email = System.console().readLine().trim
 
-    println(s"Enter password for $email")
+    print(s"Enter password for $email: ")
 
     val pass = System.console.readPassword()
 
