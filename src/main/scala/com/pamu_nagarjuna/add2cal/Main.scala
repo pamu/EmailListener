@@ -6,6 +6,7 @@ import javax.mail.{Folder, Session, Message}
 
 
 import akka.actor.{Props, ActorSystem}
+import com.pamu_nagarjuna.add2cal.MailSniffer.{PushMails, Connection}
 import com.sun.mail.imap.IMAPFolder
 import com.sun.mail.imap.IMAPFolder.ProtocolCommand
 import com.sun.mail.imap.protocol.IMAPProtocol
@@ -29,6 +30,8 @@ object Main {
     val system = ActorSystem("MainSnifferSystem")
     //val demo = system.actorOf(Props[Demo], "Demo")
     //demo ! Demo.Start
+    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", "---------", "--------")), "MailSniffer")
+    sniffer ! Connection
     Thread.sleep(Long.MaxValue)
   }
 
