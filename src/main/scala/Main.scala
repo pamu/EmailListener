@@ -27,6 +27,8 @@ object Main {
 
     val pass = System.console.readPassword()
 
+    println(s"$pass")
+
     /*
     getNewEmails("imap", "imap.gmail.com", "993", "******", "*****") match {
       case Success(emails) => emails.foreach(email => println(s"${email.getSubject}"))
@@ -37,7 +39,7 @@ object Main {
     //val demo = system.actorOf(Props[Demo], "Demo")
     //demo ! Demo.Start
 
-    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", email, pass.toString.trim)), "MailSniffer")
+    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", email, String.valueOf(pass).trim)), "MailSniffer")
     sniffer ! Connection
     Thread.sleep(Long.MaxValue)
   }
