@@ -21,7 +21,7 @@ object Main {
 
     println("Enter your gmail email id")
 
-    val email = System.console().readLine()
+    val email = System.console().readLine().trim
 
     println(s"Enter password for $email")
 
@@ -37,7 +37,7 @@ object Main {
     //val demo = system.actorOf(Props[Demo], "Demo")
     //demo ! Demo.Start
 
-    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", email, pass.toString)), "MailSniffer")
+    val sniffer = system.actorOf(Props(new MailSniffer("imap", "imap.gmail.com", "993", email, pass.toString.trim)), "MailSniffer")
     sniffer ! Connection
     Thread.sleep(Long.MaxValue)
   }
