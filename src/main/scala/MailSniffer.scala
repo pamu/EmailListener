@@ -1,4 +1,4 @@
-import javax.mail.Message
+import javax.mail.{Address, Message}
 import javax.mail.event.{MessageCountAdapter, MessageCountEvent}
 
 import akka.actor.{Actor, ActorLogging, Status}
@@ -57,7 +57,7 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       self ! Idle
     case Msgs(msgs) =>
       println("Messages")
-      msgs.foreach(msg => println(s"${msg.getSubject} from ${msg.getFrom}"))
+      msgs.foreach(msg => println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}"))
     case Idle =>
       log.info("Got Idle Message")
       Main.keepAlive(folder) pipeTo self
