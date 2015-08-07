@@ -27,8 +27,8 @@ object Main {
     }*/
     //notifyOnNewEmail("imap", "imap.gmail.com", "993", "*****", "*****")
     val system = ActorSystem("MainSnifferSystem")
-    val demo = system.actorOf(Props[Demo], "Demo")
-    demo ! Demo.Start
+    //val demo = system.actorOf(Props[Demo], "Demo")
+    //demo ! Demo.Start
     Thread.sleep(Long.MaxValue)
   }
 
@@ -56,7 +56,48 @@ object Main {
     }
   }
 
+  case class FolderNotOpen(msg: String) extends Exception(msg)
+  case class NoFolder(msg: String) extends Exception(msg)
 
+  def keepAlive(folder: IMAPFolder): Future[Unit] = {
+    Future {
+      scala.concurrent.blocking {
+        if (folder.exists()) {
+          if (folder.isOpen) {
+            folder.idle()
+          } else {
+            throw FolderNotOpen(s"${folder.getName} is not open")
+          }
+        } else {
+          throw NoFolder(s"${folder.getName} doesn't exist")
+        }
+      }
+      }
+  }
+
+  case object NOOP
+
+  def idleOff(folder: IMAPFolder): Future[NOOP.type] = {
+    Future {
+      scala.concurrent.blocking {
+        if (folder.exists()) {
+          if (folder.isOpen) {
+            folder.doCommand(new ProtocolCommand {
+              override def doCommand(imapProtocol: IMAPProtocol): AnyRef = {
+                imapProtocol.simpleCommand("NOOP", null)
+                return null
+              }
+            })
+            NOOP
+          } else {
+            throw FolderNotOpen(s"${folder.getName} is not open")
+          }
+        } else {
+          throw NoFolder(s"${folder.getName} doesn't exist")
+        }
+      }
+    }
+  }
 
   def getNewEmails(protocol: String, host: String, port: String, username: String, password: String): Try[List[Message]] = {
     Try {
