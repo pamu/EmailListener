@@ -94,7 +94,7 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       log info "Idle off message is initiated"
       Main.idleOff(folder) pipeTo self
     case NOOP =>
-      log info "Got NOOP message killing self"
+      log info "Got NOOP message"
     case x =>
       log.info("Unknown message in Connection state {} of type {}", x, x.getClass)
   }
