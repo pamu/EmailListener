@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorLogging, Status}
 import akka.pattern.pipe
 import Main.{FolderNotOpen, NOOP, NoFolder}
 import com.sun.mail.imap.IMAPFolder
+import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -60,6 +61,7 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
           self ! Msgs(e.getMessages.toList)
         }
       })
+      context.system.scheduler.schedule(0 seconds, 5 minutes, self, IdleOff)
       self ! Idle
     case Msgs(msgs) =>
       println("Messages")
@@ -71,6 +73,7 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       log info "Idle exited taking to idle state again"
       Main.keepAlive(folder) pipeTo self
     case Status.Failure(throwable) =>
+      log info "failure in idle state"
       throwable match {
         case NoFolder(_) =>
           context become connection(protocol, host, port, username, password)
@@ -92,7 +95,6 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       Main.idleOff(folder) pipeTo self
     case NOOP =>
       log info "Got NOOP message killing self"
-      context stop self
     case x =>
       log.info("Unknown message in Connection state {} of type {}", x, x.getClass)
   }
