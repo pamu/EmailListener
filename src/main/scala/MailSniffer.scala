@@ -1,4 +1,5 @@
 import java.io.IOException
+import javax.mail.internet.MimeMultipart
 import javax.mail.{MessagingException, Address, Message}
 import javax.mail.event.{MessageCountAdapter, MessageCountEvent}
 
@@ -9,6 +10,7 @@ import com.sun.mail.imap.IMAPFolder
 import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 /**
  * Created by pnagarjuna on 06/08/15.
@@ -66,6 +68,28 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
     case Msgs(msgs) =>
       println("Messages")
       msgs.foreach(msg => println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}"))
+      msgs.foreach {
+	      msg => {
+
+		      //msg.isMimeType("text/*")
+          /**
+          val multipart = msg.getContent.asInstanceOf[MimeMultipart]
+          val list = for(i <- 0 until multipart.getCount) yield multipart.getBodyPart(i)
+          println(s"body ${list.filter(_.isMimeType("text/plain")).head.getContent}") **/
+
+          def getBody(msg: Message): Option[String] = {
+            val body: Try[String] = Try {
+              val mimeMultiPart = msg.getContent.asInstanceOf[MimeMultipart]
+              val bodyParts = for( i <- 0 until mimeMultiPart.getCount) yield mimeMultiPart.getBodyPart(i)
+              val str = bodyParts.filter(_.isMimeType("text/plain")).head.getContent.toString
+              str
+            }
+            body.toOption
+          }
+
+          println(s"body: ${getBody(msg).getOrElse("")}")
+	      }
+      }
     case Idle =>
       log.info("Got Idle Message")
       Main.keepAlive(folder) pipeTo self

@@ -7,7 +7,7 @@ import javax.mail.{Message, Folder, Session}
 import com.sun.mail.imap.IMAPFolder
 import com.sun.mail.imap.IMAPFolder.ProtocolCommand
 import com.sun.mail.imap.protocol.IMAPProtocol
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
