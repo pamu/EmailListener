@@ -67,7 +67,12 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       self ! Idle
     case Msgs(msgs) =>
       println("Messages")
-      msgs.foreach(msg => println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}"))
+      msgs.foreach(msg => {
+        println(s"Message number ${msg.getMessageNumber}")
+        println("reply to")
+        msg.getReplyTo.foreach{add: Address => println(s"${add}")}
+        println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}")
+      })
       msgs.foreach {
 	      msg => {
 
