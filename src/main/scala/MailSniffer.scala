@@ -69,9 +69,9 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       println("Messages")
       msgs.foreach(msg => {
         println(s"Message number ${msg.getMessageNumber}")
-        println("reply to")
-        msg.getReplyTo.foreach{add: Address => println(s"${add}")}
+
         println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}")
+
       })
       msgs.foreach {
 	      msg => {
@@ -92,7 +92,17 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
             body.toOption
           }
 
+          println("**********************************")
+
           println(s"body: ${getBody(msg).getOrElse("")}")
+
+          println(s"first line of the body ${getBody(msg).getOrElse("").firstLine}")
+
+          println(s"Reply: ${msg.getSubject.isReply}")
+
+          println(s"Forwarded: ${msg.getSubject.isForward}")
+
+          println("************************************")
 	      }
       }
     case Idle =>
@@ -126,5 +136,14 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       log info "Got NOOP message"
     case x =>
       log.info("Unknown message in Connection state {} of type {}", x, x.getClass)
+  }
+
+  implicit class StringUtils(text: String) {
+    def firstLine: String = text.split("\n").head
+  }
+
+  implicit class EmailUtils(subject: String) {
+    def isReply: Boolean = subject.startsWith("Re: ")
+    def isForward: Boolean = subject.startsWith("Fwd: ")
   }
 }
