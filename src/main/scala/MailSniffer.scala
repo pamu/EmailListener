@@ -70,6 +70,14 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
       msgs.foreach(msg => {
         println(s"Message number ${msg.getMessageNumber}")
 
+        val enum = msg.getAllHeaders
+
+        println("headers")
+
+        while (enum.hasMoreElements) {
+          println(enum.nextElement() + " ")
+        }
+
         println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}")
 
       })
