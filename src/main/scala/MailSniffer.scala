@@ -1,6 +1,6 @@
 import java.io.IOException
 import javax.mail.internet.MimeMultipart
-import javax.mail.{MessagingException, Address, Message}
+import javax.mail.{Header, MessagingException, Address, Message}
 import javax.mail.event.{MessageCountAdapter, MessageCountEvent}
 
 import akka.actor.{Actor, ActorLogging, Status}
@@ -72,17 +72,21 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
 
         val enum = msg.getAllHeaders
 
+        println("reply to ")
+
+        msg.getReplyTo.foreach(add => println(add.toString))
+
         println("headers")
 
         while (enum.hasMoreElements) {
-          println(enum.nextElement() + " ")
+          val header = enum.nextElement().asInstanceOf[Header]
+          println(s"name: ${header.getName} value: ${header.getValue}")
         }
 
         println(s"${msg.getSubject} from ${msg.getFrom.map({add: Address => add.toString}).mkString(" ")}")
 
       })
-      msgs.foreach {
-	      msg => {
+      msgs.foreach { msg => {
 
 		      //msg.isMimeType("text/*")
           /**
@@ -109,6 +113,17 @@ class MailSniffer(protocol: String, host: String, port: String, username: String
           println(s"Reply: ${msg.getSubject.isReply}")
 
           println(s"Forwarded: ${msg.getSubject.isForward}")
+
+          val enum = msg.getAllHeaders
+          while (enum.hasMoreElements) {
+            val header = enum.nextElement().asInstanceOf[Header]
+            if (header.getName == "Message-ID") {
+              println(s"${header.getName} => ${header.getValue}")
+            }
+          }
+
+          println("______________________________________")
+          msg.getHeader("Message-ID").foreach(println _)
 
           println("************************************")
 	      }
